@@ -1,0 +1,8 @@
+*.pem
+*.crt
+*.key
+*.req
+*.csr
+*.cnf
+*.conf
+*.backup

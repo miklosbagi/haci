@@ -1,0 +1,9 @@
+###
+### cert-inject configuration
+###
+
+### test_site
+### A https website that is signed by your self-signed certificate.
+### This is to confirm that certificate injection is required and that it was successful.
+###
+# test_site="https://my-ttrss.lan"
