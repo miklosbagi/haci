@@ -1,5 +1,6 @@
 # Home Assistant Certificate Injector
 This is prototype code for injecting self-signed certificates into Home Assistant.
+Setting up as a command_line sensor (example below) can achieve SSL trust monitoring and automated cert-inject in case it breaks.
 
 ## Is this for me?
 In case all the following statements are true when you are:
