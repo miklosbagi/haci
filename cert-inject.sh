@@ -146,7 +146,7 @@ _SAY "Current HA Version is: $current_ha_version"
 [ -f "${0%/*}/$HA_VER" ] && last_reboot=`$cat ${0%/*}/$HA_VER` || touch "${0%/*}/$HA_VER"
 
 # if HA runtime version cannot be determined, do not proceed with reboot
-[ -z "$current_ha_version" ] && { _SAY "Couldn't determine HA runtime version ($current_ha_version), not rebooting."; exit 0; }
+[ ! -z "$current_ha_version" ] && { _SAY "Couldn't determine HA runtime version ($current_ha_version), not rebooting."; exit 0; }
 
 # in case no latest reboot information, add it and reboot
 if [ -z "$last_reboot" ]; then
