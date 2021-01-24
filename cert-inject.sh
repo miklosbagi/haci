@@ -124,7 +124,7 @@ for c in $certs; do
   pem_hash=`$openssl x509 -hash -noout -in "$c"` || { _WRN "Failed creating pem hash for ${c##*/}, WILL NOT LINK."; continue; }
   _SAY "- PEM hash is: $pem_hash"
   # symlink hash to certs dir (note low risk with .0 here)
-  [ -f "$CDS/${c##*/}" ] && [ ! -L "$CDS/${pem_hash}.0" ] && { $ln -s "$CDS/${c##*/}" "$CDS/${pem_hash}.0" || _WRN "Error creating symlink $pem_hash.0 for $CDS/${c##*/}"; } || _SAY "- ${c##*/} is already linked, skipping."
+  [ -f "$CDS/${c##*/}" ] && [ ! -L "$CDS/${pem_hash}.0" ] && { $ln -s "${c##*/}" "$CDS/${pem_hash}.0" || _WRN "Error creating symlink $pem_hash.0 for $CDS/${c##*/}"; } || _SAY "- ${c##*/} is already linked, skipping."
   _SAY "- $CDS/${c##*/} is linked to $CDS/${pem_hash}.0."
 
 done
