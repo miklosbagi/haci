@@ -6,3 +6,4 @@
 *.cnf
 *.conf
 *.backup
+ha-version.log
