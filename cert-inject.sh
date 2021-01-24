@@ -7,7 +7,7 @@
 ###
 
 # linux binary dependencies are listed here (except for echo - that is assumed)."
-BINS="grep sed curl openssl find cat awk cp reboot ln"
+BINS="grep sed curl openssl find cat awk cp ln"
 
 # certificates directory (can be /opt/etc/ssl/certs on *WRT)
 CDS="/etc/ssl/certs"
@@ -126,7 +126,7 @@ for c in $certs; do
 
 done
 
-# check if we can hit test site securely (in case there's no point running any further)
+# check SSL trust again, fingers crossed all worked fine.
 CHECK_SSL_INT && _SAY "Test site says SSL handshake is passing now, success." || { 
   _ERR "SSL Tests are still failing, this should not happen.\n   Please raise an issue on github.\n"
   exit 1
