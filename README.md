@@ -71,7 +71,7 @@ No. There is reliance on basic linux tools and openssl - all binary dependencies
 ```Is this maintained?```  
 I can commit to maintaining it for as long as run Home Assistant OS myself - should that change, this line will change.
 
-```The XYZ integration says SSL is still not trusted```
+```The XYZ integration says SSL is still not trusted```  
 This is expected after upgrading the Core. Thing is, your integrations will run before cert-injector does it's magic, and may stuck in a false state until restarted.
 Unfortunately there is no safe way to restart the homeassistant docker image from within (without killing it) on HA OS.
 
