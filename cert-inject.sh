@@ -7,7 +7,7 @@
 ###
 
 # linux binary dependencies are listed here (except for echo - that is assumed)."
-BINS="grep sed curl openssl find cat awk cp"
+BINS="grep sed curl openssl find cat awk cp reboot"
 
 # certificates directory (can be /opt/etc/ssl/certs on *WRT)
 CDS="/etc/ssl/certs"
@@ -17,6 +17,9 @@ CAS="$CDS/ca-certificates.crt"
 
 # config file
 CONFIG="cert-inject.conf"
+
+# ha version data file
+HA_VER="ha-version.log"
 
 ###
 ### functions
@@ -66,7 +69,7 @@ CHECK_SSL_INT_INSECURE || _ERR "The test_side provided "$test_site" in CONFIG do
 _SAY "Test site returns useful data when hit insecurely"
 
 # check if we can hit test site securely (in case there's no point running any further)
-#CHECK_SSL_INT && { _SAY "SSL is passing, not injecting anything."; exit 0; }
+CHECK_SSL_INT && { _SAY "SSL is passing, not injecting anything."; exit 0; }
 _SAY "Test site is failing https test, need to inject certs."
 
 # check that the certs we are having are actually certs
@@ -128,9 +131,48 @@ done
 
 # check if we can hit test site securely (in case there's no point running any further)
 # also, echo 0 if this is also used for monitoring ssl.
-CHECK_SSL_INT && { _SAY "Test site says SSL handshake is passing now, success."; exit 0; }
+CHECK_SSL_INT && { _SAY "Test site says SSL handshake is passing now, success." || _ERR "SSL Tests are still failing, this should not happen.\n   Please raise an issue on github.\n"; exit 1; }
 
-# throw an error when despite all efforts, SSL handshake is failing.
-_ERR "SSL Tests are still failing, this should not happen.\n   Please raise an issue on github.\n"
+# check if auto_reboot is set, exit if we don't need to worry about it.
+[ -z "$auto_reboot" ] && { _SAY "Auto Reboot is off, exiting."; exit 0; }
 
+# reboot logic: some integrations load before this script runs on a new Core version.
+# this is to ensure to make that reboot, assuming ssl trust has just been achieved (and do not do that twice for the same version).
+f="/config/.HA_VERSION"
+if [ -f "$f" ]; then current_ha_version=`$cat $f` > /dev/null || current_ha_version=""; fi
+_SAY "Current HA Version is: $current_ha_version"
+
+# create the version log file in case it does not exist
+[ -f "${0%/*}/$HA_VER" ] && last_reboot=`$cat ${0%/*}/$HA_VER` || touch "${0%/*}/$HA_VER"
+
+# if HA runtime version cannot be determined, do not proceed with reboot
+[ -z "$current_ha_version" ] && { _SAY "Couldn't determine HA runtime version ($current_ha_version), not rebooting."; exit 0; }
+
+# in case no latest reboot information, add it and reboot
+if [ -z "$last_reboot" ]; then
+   _SAY "No information on last successful cert inject reboot. Adding data and rebooting.";
+   echo "$current_ha_version" > "${0%/*}/$HA_VER" && {
+     _SAY "Added, rebooting..."
+     $reboot
+   } || {
+     _SAY "Could not add, not rebooting"
+   }
+  # whether or not we could add this, we exit successfully at this point (user will need decide to reboot manually).
+  exit 0
+fi
+
+# let's check if logged version matches running version
+a=`echo "$last_reboot" |grep -q "$current_ha_version"` && {
+  _SAY "Version is matching, no reboot needed."
+} || {
+  _SAY "Runtime version ($current_ha_version) differs from logged version ($last_reboot)."
+   echo "$current_ha_version" > "${0%/*}/$HA_VER" && {
+     _SAY "Updated, rebooting..."
+     $reboot
+   } || {
+     _SAY "Failed adding current version ($current_ha_version) to ${0%/*}/$HA_VER, exiting."
+   }
+}
+
+exit 0
 # eof

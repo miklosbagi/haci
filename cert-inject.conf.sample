@@ -7,3 +7,13 @@
 ### This is to confirm that certificate injection is required and that it was successful.
 ###
 # test_site="https://my-ttrss.lan"
+
+### auto_reboot
+### If (and only if) there are integrations used that rely on trust for the self-signed certificates
+### a reboot may be necessary after injecting the certs to establish that trust.
+### This setting can automate that reboot with appropriate conditions set:
+### - Will log the last successful Core version where certs were injected and reboot performed
+### - Will not perform reboot on the same Core version twice (avoid reboot loop)
+### Defaults to "" (disabled).
+### Set to "true" to enable.
+# auto_reboot=""
