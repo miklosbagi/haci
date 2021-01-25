@@ -33,7 +33,9 @@ At this point, you can run the script with ```./cert-inject.sh``` without any pa
 
 It is recommended that you first run with debug.
 
-### Creating a certificate trust monitor sensor
+Keep in mind though that you have to run this inside the ```homeassistant``` container. Running in any installed terminal/ssh addion will likely not lead to success.
+
+### Creating a certificate trust monitor sensor (optional)
 Example for configuration.yaml:
 ```
 ### Home Assistant Cert Injector
@@ -75,6 +77,10 @@ I can commit to maintaining it for as long as run Home Assistant OS myself - sho
 ```The XYZ integration says SSL is still not trusted```  
 This is expected after upgrading the Core. Thing is, your integrations will run before cert-injector does it's magic, and may stuck in a false state until restarted.
 Unfortunately there is no safe way to restart the homeassistant docker image from within (without killing it) on HA OS.
+
+```I have ran this in *** console/terminal and it does not seem to work```
+Keep in mind that addons like SSH/Terminal and VSCode run in their own dockers. While certain elements (such as /config) are shared, the /etc/ssl/certs we need is a part of the homeassistant container, as that is the one executing the command_line sensors, python scripts, etc.  
+The sensor example above fixed this, however, for running this manually, you have to get into a position to launch ```docker exec -it homeassistant /bin/bash``` successfully. 
 
 ## Legal
 Keeping this short:
