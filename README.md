@@ -6,9 +6,9 @@ Setting up as a command_line sensor (example below) can achieve SSL trust monito
 In case all the following statements are true when you are:
 - running Home Assistant OS or Home Assistant (Core) container
 - having self-signed certificates
-- running services with those self-signed certificates
+- running services with those self-signed certificates (openwrt, ddwrt, transmission, there can be a bunch)
 - looking to integrate those services with Home Assistant
-- not a fan of skipping certificate validation (e.g.: ```curl -k```)
+- not a fan of skipping certificate validation (e.g.: ```curl -k``` or setting verify_ssl to false in certain integrations)
 - running into the "I can't make Home Assistant trust my certificates" problem
 
 You **do not need this** when you are:
