@@ -22,14 +22,14 @@ You **do not need this** when you are:
 
 ### Step-by-step
 1. Login to Home Assistant Core via SSH
-2. Navigate to a directory that is available to both Home Assistant Core and your SSH (e.g. /config)
-3. Clone this repository with ```git clone```
-4. In the cloned directory, ```cp cert-inject.conf.sample cert-inject.conf```
-5. Add the test site: ```test-site="https://my-nextcloud.lan"``` to cert-inject.conf
+2. Navigate to a directory that is available to both Home Assistant Core and your SSH (e.g. /share)
+3. Clone this repository: ```git clone git@github.com:miklosbagi/haci.git```
+4. In the cloned directory, ```cp haci.conf.sample haci.conf```
+5. Add the test site: ```test-site="https://my-nextcloud.lan"``` to haci.conf
 6. Place your PEM formatted certificates into the ```certs``` directory
-7. Make sure permissions are correct: ```chmod 700 cert-inject.sh```
+7. Make sure permissions are correct: ```chmod 700 haci.sh```
 
-At this point, you can run the script with ```./cert-inject.sh``` without any parameters to make the necessary changes. Please note thought that the normal operation is quiet (so we can run it in the background properly), but there is a debug option implemented where each action is confirmed: ```./cert-inject.sh debug```.
+At this point, you can run the script with ```./haci.sh``` without any parameters to make the necessary changes. Please note thought that the normal operation is quiet (so we can run it in the background properly), but there is a debug option implemented where each action is confirmed: ```./haci.sh debug```.
 
 It is recommended that you first run with debug.
 
@@ -41,8 +41,8 @@ Example for configuration.yaml:
 ### Home Assistant Cert Injector
 sensor:
   - platform: command_line
-    name: "Cert Injector"
-    command: "/config/cert_injector/cert-inject.sh && echo 1 || echo 0"
+    name: "HACI"
+    command: "/share/haci/haci.sh && echo 1 || echo 0"
     device_class: safety
     payload_on: 0
     payload_off: 1
@@ -75,7 +75,7 @@ No. There is reliance on basic linux tools and openssl - all binary dependencies
 I can commit to maintaining it for as long as run Home Assistant OS myself - should that change, this line will change.
 
 ```The XYZ integration says SSL is still not trusted```  
-This is expected after upgrading the Core. Thing is, your integrations will run before cert-injector does it's magic, and may stuck in a false state until restarted.
+This is expected after upgrading the Core. Thing is, your integrations will run before ```haci``` does it's magic, and may stuck in a false state until restarted.
 Unfortunately there is no safe way to restart the homeassistant docker image from within (without killing it) on HA OS.
 
 ```I have ran this in *** console/terminal and it does not seem to work```

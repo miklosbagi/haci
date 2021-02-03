@@ -16,7 +16,7 @@ CDS="/etc/ssl/certs"
 CAS="$CDS/ca-certificates.crt"
 
 # config file
-CONFIG="cert-inject.conf"
+CONFIG="haci.conf"
 
 ###
 ### functions
