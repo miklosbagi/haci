@@ -7,3 +7,8 @@
 ### This is to confirm that certificate injection is required and that it was successful.
 ###
 # test_site="https://my-ttrss.lan"
+
+### certifi
+### Set to any value to add certs to python certifi.
+### This is off by default (when commented out)
+# certifi=yes
