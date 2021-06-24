@@ -10,8 +10,7 @@ Yes, in case your response to all of the following statements are true:
 - not a fan of skipping certificate validation (e.g.: ```curl -k``` or setting verify_ssl to false)
 - running into the "I can't make Home Assistant trust my certificates" problem
 
-You **do not need this** when you are:
-- looking to put Home Assistant behind SSL (e.g. https://hass.lan)
+You **definitely do not need this** to have Home Assistant behind SSL (e.g. https://hass.lan)
 
 ## Quickstart
 ### Prerequisites
@@ -88,6 +87,10 @@ Yes, in fact that is what I'm doing. Every time
 
 ```Can I make Home Assistant trust my MITM proxy certificates via HACI?```
 Yes, Charles Proxy, MITM Proxy or Cisco Umbrella should all work now.
+
+```I'm tryin to use HACI with certifi enabled, and getting this error: ModuleNotFoundError: No module named 'distutils.util'```
+Likely you are not running haci inside the ```homeassistant``` container - please note that vscode, terminal / ssh addons live in their own containers, there can be a few differences in installed py modules.
+
 
 ## Legal
 Keeping this short:
