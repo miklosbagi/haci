@@ -1,5 +1,5 @@
 # Home Assistant Certificate Injector
-> :warning: Please be aware that as of HASSOS 2022.7, the openssl binary has been moved, rendering HACI unable to fulfill its purpose. Please consult [#4](/../../issues/4) for additional details.
+> :warning: Please be aware that as of HASSOS 2022.6.2, the openssl binary has been moved, rendering HACI unable to fulfill its purpose. Please consult [#4](/../../issues/4) for additional details.
 
 This is prototype code for injecting self-signed certificates into Home Assistant.  
 Setting up as a command_line sensor (example below) can achieve SSL trust monitoring and automated cert-inject in case it breaks.  
