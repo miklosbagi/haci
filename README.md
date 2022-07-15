@@ -1,5 +1,4 @@
 # Home Assistant Certificate Injector
-> :warning: Please be aware that as of HASSOS 2022.6.2, the openssl binary has been moved, rendering HACI unable to fulfill its purpose. Please consult [#4](/../../issues/4) for additional details.
 
 This is prototype code for injecting self-signed certificates into Home Assistant.  
 Setting up as a command_line sensor (example below) can achieve SSL trust monitoring and automated cert-inject in case it breaks.  
@@ -50,6 +49,9 @@ sensor:
 ```
 
 ## FAQ
+```OpenSSL Binary is not found!```
+Please be aware that as of HASSOS 2022.6.2, the openssl binary has been removed. This issue has been addressed in [#4](/../../issues/4), so cloning the latest HACI should fix this.
+
 ```Is this limited to internal services?```  
 No. Just set the test site to an external https site - the point is to trust the ssl that site uses.
 
@@ -93,6 +95,8 @@ Yes, Charles Proxy, MITM Proxy or Cisco Umbrella should all work now.
 ```I'm tryin to use HACI with certifi enabled, and getting this error: ModuleNotFoundError: No module named 'distutils.util'```
 Likely you are not running haci inside the ```homeassistant``` container - please note that vscode, terminal / ssh addons live in their own containers, there can be a few differences in installed py modules.
 
+## Thanks
+- arfoll, mateuszdrab for their report, and support in resolving [#4](/../../issues/4)
 
 ## Legal
 Keeping this short:
