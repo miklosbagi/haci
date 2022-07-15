@@ -33,6 +33,10 @@ function FIND_BIN {
       if [ -d "$loc" ]; then if [ -f "$loc/$1" ]; then
          eval "$1"="$loc/$1"; return; fi; fi
   done
+
+  # solve https://github.com/miklosbagi/haci/issues/4 (:beer: -> @mateuszdrab)
+  if [ $1 == "openssl" ]; then apk add openssl; return 0; fi
+
   # fail in case there is no sign of that binary in all those directories...
   return 1
 }
