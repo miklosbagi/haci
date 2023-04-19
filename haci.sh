@@ -24,18 +24,18 @@ CONFIG="haci.conf"
 
 # comm functions
 function _SAY { [ -z $debug ] || echo -ne "  $1\n"; return 0; }
-function _ERR { echo "!!! Error: $1"; exit 1; }
-function _WRN { echo "??? $1"; return 0; }
+function _ERR { echo -ne "!!! Error: $1\n"; exit 1; }
+function _WRN { echo -ne "??? $1\n"; return 0; }
 
 # find functions
 function FIND_BIN {
+
   for loc in /bin /usr/bin /usr/local/bin /sbin /usr/sbin /opt/bin /usr/lib; do
       if [ -d "$loc" ]; then if [ -f "$loc/$1" ]; then
          eval "$1"="$loc/$1"; return; fi; fi
   done
-
   # solve https://github.com/miklosbagi/haci/issues/4 (:beer: -> @mateuszdrab)
-  if [ $1 == "openssl" ]; then apk add openssl; return 0; fi
+  if [ $1 == "openssl" ]; then apk add openssl; FIND_BIN openssl; return 0; fi
 
   # fail in case there is no sign of that binary in all those directories...
   return 1
@@ -109,7 +109,7 @@ a=`echo "$test_site" | $grep -q "^https://"` || _ERR "Test site \"$test_site\" i
 _SAY "Test site ($test_site) passed basic validation"
 
 # check if site is up at all
-CHECK_SSL_INT_INSECURE || _ERR "The test_side provided "$test_site" in CONFIG doesn't seem to return useful data. Is it up? (try curl -sk $test_site)"
+CHECK_SSL_INT_INSECURE || _ERR "The test_site provided "$test_site" in CONFIG doesn't seem to return useful data. Is it up? (try curl -sk $test_site)"
 _SAY "Test site returns useful data when hit insecurely"
 
 # check if we can hit test site securely (in case there's no point running any further)
@@ -129,8 +129,7 @@ _SAY "The ${0%/*}/certs directory exists"
 # find all the certs to be added
 certs=`$find "${0%/*}/certs"/ -type f \( -name "*.crt" -o -name "*.pem" -o -name "*.cer" \)` || _ERR "Find throws error for ${0%/*}/certs"
 [ -z "$certs" ] && _ERR "No certificates were found in ${0%/*}/certs, please place your Root CA and any intermediate CAs in that directory in PEM format."
-_SAY "Found certs: \n$certs" |$sed 's#^[\./]./\?#  - #'
-
+_SAY "Found certs: \n$certs" |$sed 's#^[\(\/\)\(\./\)\?]#  - #'
 # add linux core certs if needed
 [ ! -z $int_ssl_status ] && {
   _SAY "Injecting Certs to Linux..."
