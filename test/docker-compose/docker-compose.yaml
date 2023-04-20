@@ -1,0 +1,65 @@
+version: '3.9'
+services:
+  # create rootca, intermediateca, and server certs
+  certs:
+    image: alpine:latest
+    container_name: haci-certs
+    command: >
+      sh -c  "apk add openssl && \
+
+              openssl genrsa -out /certs/root.key 2048 && \
+              openssl req -x509 -new -nodes -key /certs/root.key -sha256 -days 1 -subj '${SUBJ}' -out /certs/root.crt && \
+
+              openssl genrsa -out /certs/intermediate.key 2048 && \
+              openssl req -new -key /certs/intermediate.key -subj '${SUBJ}' -out /certs/intermediate.csr && \
+              openssl x509 -req -in /certs/intermediate.csr -CA /certs/root.crt -CAkey /certs/root.key -CAcreateserial -sha256 -days 1 -extfile /config/intermediate.ext -out /certs/intermediate.crt && \
+
+              openssl genrsa -out /nginx/server.key 2048 && \
+              openssl req -new -key /nginx/server.key -subj '${SUBJ}' -out /certs/server.csr && \
+              openssl x509 -req -in /certs/server.csr -CA /certs/intermediate.crt -CAkey /certs/intermediate.key -CAcreateserial -sha256 -days 1 -extfile /config/server.ext -out /certs/server.crt && \
+
+              cat /certs/server.crt /certs/intermediate.crt > /nginx/server.crt && \
+              rm /certs/*.csr /certs/*.srl /certs/*.key certs/server.crt && \
+
+              while true; do sleep 6635; done"
+    volumes:
+      - ../cert-gen:/certs
+      - ../config-nginx/certs:/nginx
+      - ../config-openssl:/config
+    healthcheck:
+      test: ["CMD", "ls", "-1", "/nginx/server.crt"]
+      interval: 5s
+      timeout: 2s
+      retries: 50
+      start_period: 10s
+
+  # nginx config to host a site to test with
+  haci-test-nginx:
+    container_name: ${TEST_SITE}
+    image: nginx
+    ports:
+      - "8443:443"
+      - "8080:80"
+    volumes:
+      - ../config-nginx:/etc/nginx
+      - ../config-nginx/html:/usr/share/nginx/html
+    depends_on:
+      certs:
+        condition: service_healthy
+
+  # homeassistant (please note the docker-compose-env override for dev/beta/stable builds)
+  homeassistant:
+    # env override fills in image - see docker-compose-env.yaml
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ../../:/haci
+      - ../cert-gen:/haci/certs
+    ports:
+      - "8823:8123"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8123"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - haci-test-nginx
