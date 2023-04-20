@@ -4,6 +4,6 @@
 *.req
 *.csr
 *.cnf
-*.conf
 *.backup
+test/config-homeassistant
 ha-version.log
