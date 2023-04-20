@@ -1,0 +1,17 @@
+name: HACI on HASS dev
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  hass-dev-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build env and run tests
+      run: make TEST_ENV=dev run-tests
