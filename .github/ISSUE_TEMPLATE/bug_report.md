@@ -4,35 +4,29 @@ about: Create a report to help us improve
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Environment**
+ - Home Assistant version: [e.g. 0.105.5]
+ - Home Assistant OS version: [e.g. 3.12]
+ - HACI location inside HASS container: [e.g. /config/haci]
+ - RootCA in HACI's certificate dir? [e.g. yes]
+ - Intermediate CA (if applicable) in HACI's certificate dir? [e.g. yes]
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Debug run results**
+Please run `haci debug` and paste the output here:
+```
+...
+```
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**HACI config**
+Please paste your HACI config here:
+```
+...
+```
 
 **Additional context**
 Add any other context about the problem here.
