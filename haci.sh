@@ -35,7 +35,7 @@ function FIND_BIN {
          eval "$1"="$loc/$1"; return; fi; fi
   done
   # solve https://github.com/miklosbagi/haci/issues/4 (:beer: -> @mateuszdrab)
-  if [ $1 == "openssl" ]; then apk add openssl; FIND_BIN openssl; return 0; fi
+  [ $1 == "openssl" ] && { apk add openssl && FIND_BIN openssl && return 0; }
 
   # fail in case there is no sign of that binary in all those directories...
   return 1
