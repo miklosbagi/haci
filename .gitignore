@@ -7,3 +7,4 @@
 *.backup
 test/config-homeassistant
 ha-version.log
+haci.conf
