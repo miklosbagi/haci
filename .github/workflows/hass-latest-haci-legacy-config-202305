@@ -1,0 +1,15 @@
+name: HACI on HASS latest
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  hass-latest-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build env and run tests
+      run: make TEST_ENV=latest CONFIG_VERSION=202305
