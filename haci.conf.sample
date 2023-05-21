@@ -5,8 +5,9 @@
 ### test_site
 ### A https website that is signed by your self-signed certificate.
 ### This is to confirm that certificate injection is required and that it was successful.
+### Accepts ip:hostname format (please note that https://site:port format is deprecated)
 ###
-# test_site="https://my-ttrss.lan"
+# test_site="my-ttrss.lan"
 
 ### certifi
 ### Set to any value to add certs to python certifi.
