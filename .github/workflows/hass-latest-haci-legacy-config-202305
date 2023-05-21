@@ -1,4 +1,4 @@
-name: HACI on HASS latest
+name: HACI on HASS latest with Legacy Config 202305
 
 on:
   push:
