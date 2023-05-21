@@ -42,9 +42,9 @@ function FIND_BIN {
 }
 
 # validate internal ssl test site
-function CHECK_SSL_INT { a=`$curl -m 2 -sIX GET "$test_site"` || return 1; }
+function CHECK_SSL_INT { a=`echo | openssl s_client -connect "$test_site" -servername "${test_site%%:*}" 2>/dev/null` || return 1; }
 function CHECK_SSL_INT_INSECURE { a=`$curl -m 2 -sk "$test_site"` && return 0 || return 1; }
-function CHECK_SSL_INT_PY { a=`$python -c "exec('import requests\ntry:\n\tr=requests.get(\"$test_site\")\nexcept:\n\texit(1)')"` || return 1; }
+function CHECK_SSL_INT_PY { a=`$python ${0%/*}/haci_ssl_test.py "$test_site"` || return 1; }
 
 # create backup of certificates file
 function CERT_BACKUP {
@@ -88,6 +88,22 @@ function CERT_CA_INJECT {
     done
 }
 
+function REFORMAT_SITE_STRING {
+  # Check if the URL starts with "http://" or "https://"
+  if [[ $test_site == http://* ]]; then
+      # Remove "http://" and add ":443" if port is not defined
+      test_site=${test_site#http://}
+      [[ $test_site == *:* ]] || test_site=$test_site:443
+  elif [[ $test_site == https://* ]]; then
+      # Remove "https://" and add ":443" if port is not defined
+      test_site=${test_site#https://}
+      [[ $test_site == *:* ]] || test_site=$test_site:443
+  else
+      # Add ":443" if port is not defined
+      [[ $test_site == *:* ]] || test_site=$test_site:443
+  fi
+}
+
 ###
 ### exec
 ###
@@ -103,10 +119,8 @@ _SAY "\b\bRunning with debug"
 [ -f ${0%/*}/$CONFIG ] && { source "${0%/*}/$CONFIG" || _ERR "Failed loading config: $CONFIG."; } || _ERR "Config file $CONFIG does not exist or no access."
 _SAY "Config loaded"
 
-# validate test site 1,2
-[ -z "$test_site" ] && _ERR "Test site (test_site) is not defined in CONFIG $config"
-a=`echo "$test_site" | $grep -q "^https://"` || _ERR "Test site \"$test_site\" is not https://"
-_SAY "Test site ($test_site) passed basic validation"
+# backward compatibility for https://this-site vs this-site:port
+REFORMAT_SITE_STRING || _ERR "Failed to reformat test_site string"
 
 # check if site is up at all
 CHECK_SSL_INT_INSECURE || _ERR "The test_site provided "$test_site" in CONFIG doesn't seem to return useful data. Is it up? (try curl -sk $test_site)"

@@ -4,6 +4,9 @@ TEST_ENV:=stable
 TEST_SITE:=haci-test-nginx
 SUBJ:='/C=HU/ST=Budapest/O=HACItest/CN=haci-test-nginx'
 COMPOSE_CMD=docker compose -f ${TEST_DIR}/docker-compose/docker-compose.yaml -f ${TEST_DIR}/docker-compose/docker-compose-env.yaml
+
+include legacy.mk
+
 export
 
 .PHONY: all
@@ -29,12 +32,12 @@ start-test-env:
 				echo -ne "\n\n!!!\n!!! DOCKER-COMPOSE LOG\n!!!\n"; ${COMPOSE_CMD} logs | grep --color=always -i "(error\|err\|warn\|warning)"; \
 				${COMPOSE_CMD} rm -v; echo ❌; exit 1; }
 
-
 .PHONY: add-haci-config
 add-haci-config:
-	@echo -ne " * Adding HACI config... "
-	@echo -ne 'test_site="https://${TEST_SITE}"\ncertifi=yes\n' > haci.conf && echo ✅ || echo ❌
+	@echo -ne " * Adding HACI config: ${TEST_SITE_STRING}... "
+	@echo -ne 'test_site="${TEST_SITE_STRING}"\ncertifi=yes\n' > haci.conf && echo ✅ || echo ❌
 
+# haci test
 .PHONY: test-haci
 test-haci:
 	${COMPOSE_CMD} logs
