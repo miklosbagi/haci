@@ -42,7 +42,11 @@ function FIND_BIN {
 }
 
 # validate internal ssl test site
-function CHECK_SSL_INT { a=`echo | openssl s_client -connect "$test_site" -servername "${test_site%%:*}" 2>/dev/null` || return 1; }
+function CHECK_SSL_INT {
+    a=`echo | openssl s_client -connect "$test_site" -servername "${test_site%%:*}" 2>/dev/null`
+    if [[ $a =~ "self-signed certificate in certificate chain" ]]; then return 1; fi
+    return 0
+}
 function CHECK_SSL_INT_INSECURE { a=`$curl -m 2 -sk "$test_site"` && return 0 || return 1; }
 function CHECK_SSL_INT_PY { a=`$python ${0%/*}/haci_ssl_test.py "$test_site"` || return 1; }
 
