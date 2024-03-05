@@ -1,4 +1,4 @@
-name: HACI on HASS 202401
+name: HACI on HASS 2024.1
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
     - cron:  '0 0 * * *'
 
 jobs:
-  hass-202401-test:
+  hass-2024-1-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Build env and run tests
-      run: make TEST_ENV=2024.01 run-tests
+      run: make TEST_ENV=2024.1 run-tests
