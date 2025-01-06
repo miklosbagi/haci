@@ -1,0 +1,17 @@
+name: HACI on HASS 2025.1
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  hass-2025-1-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build env and run tests
+      run: make TEST_ENV=2025.1 run-tests
