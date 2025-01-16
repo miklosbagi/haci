@@ -1,4 +1,4 @@
-name: HACI on HASS 2023.4 Reference
+name: HACI on HASS 2023.1
 
 on:
   push:
@@ -14,4 +14,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build env and run tests
-      run: make TEST_ENV=2023.4 run-tests
+      run: make TEST_ENV=2023.1 run-tests
