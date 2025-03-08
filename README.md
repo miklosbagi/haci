@@ -2,8 +2,9 @@
 
 [![HACI on HASS latest](https://github.com/miklosbagi/haci/actions/workflows/hass-latest-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-latest-haci-test.yml) [![HACI on HASS stable](https://github.com/miklosbagi/haci/actions/workflows/hass-stable-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-stable-haci-test.yml) [![HACI on HASS rc](https://github.com/miklosbagi/haci/actions/workflows/hass-rc-haci-test.yaml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-rc-haci-test.yaml) [![HACI on HASS dev](https://github.com/miklosbagi/haci/actions/workflows/hass-dev-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-dev-haci-test.yml) [![HACI on HASS 2025.1](https://github.com/miklosbagi/haci/actions/workflows/hass-202501-haci-test.yml/badge.svg)](https://github.com/miklosbagi/haci/actions/workflows/hass-202501-haci-test.yml) [![HACI on HASS 2024.1 Reference](https://github.com/miklosbagi/haci/actions/workflows/hass-202401-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-reference-haci-test.yml) [![HACI on HASS 2023.1](https://github.com/miklosbagi/haci/actions/workflows/hass-202301-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-202301-haci-test.yml)
 
-This is prototype code for injecting self-signed certificates into Home Assistant.  
-Setting up as a command_line sensor (example below) can achieve SSL trust monitoring and automated cert-inject in case it breaks.  
+This is code for injecting self-signed certificates into Home Assistant.  
+Setting up as a command_line sensor (example below) can achieve SSL trust monitoring and automated cert-inject in case it breaks. 
+It patches the certs inside the `homeassistant` container on hassos, and python's certifi package too.
 
 ## Is this for me?
 Yes, in case your response to all of the following statements are true:
@@ -13,7 +14,7 @@ Yes, in case your response to all of the following statements are true:
 - not a fan of skipping certificate validation (e.g.: ```curl -k``` or setting verify_ssl to false)
 - running into the "I can't make Home Assistant trust my certificates" problem
 
-You **definitely do not need this** to have Home Assistant behind SSL (e.g. https://hass.lan)
+You **definitely do not need this** to run Home Assistant behind SSL (e.g. https://hass.lan), letsencrypt, etc. This is to make HA trust your CA.
 
 ## Quickstart
 ### Prerequisites
