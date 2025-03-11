@@ -2,7 +2,7 @@
 
 [![HACI on HASS latest](https://github.com/miklosbagi/haci/actions/workflows/hass-latest-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-latest-haci-test.yml) [![HACI on HASS stable](https://github.com/miklosbagi/haci/actions/workflows/hass-stable-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-stable-haci-test.yml) [![HACI on HASS rc](https://github.com/miklosbagi/haci/actions/workflows/hass-rc-haci-test.yaml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-rc-haci-test.yaml) [![HACI on HASS dev](https://github.com/miklosbagi/haci/actions/workflows/hass-dev-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-dev-haci-test.yml) [![HACI on HASS 2025.1](https://github.com/miklosbagi/haci/actions/workflows/hass-202501-haci-test.yml/badge.svg)](https://github.com/miklosbagi/haci/actions/workflows/hass-202501-haci-test.yml) [![HACI on HASS 2024.1 Reference](https://github.com/miklosbagi/haci/actions/workflows/hass-202401-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-reference-haci-test.yml) [![HACI on HASS 2023.1](https://github.com/miklosbagi/haci/actions/workflows/hass-202301-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-202301-haci-test.yml)
 
-This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the homeassistant container on HassOS and Python's certifi package.
+This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the `homeassistant` container on HassOS and Python's `certifi` package.  
 By setting up a command-line sensor (example below), you can automate SSL trust monitoring and re-inject certificates if they break.
 
 ## Is this for you?
@@ -14,29 +14,53 @@ Yes, in case your response to all of the following statements are true:
 - You prefer not to skip certificate validation (e.g., `curl -k` or setting `verify_ssl: false`).
 - You're struggling to make Home Assistant trust your certificates. 
 
-You **DO NOT need HACI** to simply enable SSL (e.g., https://hass.lan with Let's Encrypt). HACI is for making HA trust your Certificate Authority (CA).
+You **DO NOT need HACI** to simply enable SSL (e.g., https://hass.lan with Let's Encrypt).  
+HACI is for making HA trust your Certificate Authority (CA).
 
 ## Quickstart
 ### Prerequisites
-- Shell access to your Home Assistant instance (Physical, ssh, terminal or even the shell provided in the vscode addon).
-- The certificates you are looking to get trusted in PEM format (.pem, .crt, .cer)
-- A website running behind a self-signed certificate (for validating results)
+- Shell access to your Home Assistant instance (SSH, physical terminal, or VSCode add-on shell).
+- Your self-signed certificates in PEM format (`.pem`, `.crt`, `.cer`).
+- A self-signed HTTPS website to test results.
 
 ### Step-by-step
-1. Login to Home Assistant Core via SSH
-1. Navigate to a directory that is available to both Home Assistant Core and your SSH (e.g. /share)
-1. Clone this repository: ```git clone git@github.com:miklosbagi/haci.git```
-1. In the cloned directory, ```cp haci.conf.sample haci.conf```
-1. Add the test site: ```test-site="https://my-nextcloud.lan"``` to haci.conf
-1. Add ```certifi=yes``` to haci.conf in case you need Python Certifi cacert.pem patched too (otherwise only linux certs will be added)
-1. Place your PEM formatted certificates into the ```certs``` directory
-1. Make sure permissions are correct: ```chmod 700 haci.sh```
+1. **Access Home Assistant Core via SSH.**
+1. **Navigate to a shared directory (accessible by both Home Assistant Core and SSH, e.g., `/share`).**
+1. **Clone this repository:**
+   ```console
+   git clone git@github.com:miklosbagi/haci.git
+   ```
+1. **Create a config file:**
+   ```console
+   cp haci.conf.sample haci.conf
+   ```
+1. **Add the following to `haci.conf`:**
+   ```ini
+   test-site="https://my-nextcloud.lan"
+   ```
+1. **(Optional) Patch Python Certifi CA certs:  
+   Add the following to `haci.conf`:**  
+   ```ini
+   certifi="yes"
+   ```
+1. **Place your certificates** inside the `certs` directory
+1. **Ensure proper script permissions:**
+    ```console
+   chmod 700 haci.sh
+    ```
 
-At this point, you can run the script with ```./haci.sh``` without any parameters to make the necessary changes. Please note thought that the normal operation is quiet (so we can run it in the background properly), but there is a debug option implemented where each action is confirmed: ```./haci.sh debug```.
+### Running the script
+Run the script with:  
+```console
+./haci.sh
+```
 
-**It is recommended that you first run with debug.**
+The script runs silently by default for background execution. For debugging, use:
+```console
+./haci.sh debug
+```
 
-Keep in mind though that you have to run this inside the ```homeassistant``` container. Running in any installed terminal/ssh addion will likely not lead to success.
+**Important**: You must run this inside the `homeassistant` container. Running from SSH add-ons or VSCode will not work.
 
 ### Creating a certificate trust monitor sensor (optional)
 Example for configuration.yaml:
