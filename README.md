@@ -1,20 +1,20 @@
-# Home Assistant Certificate Injector
+# HACI: Home Assistant Certificate Injector
 
 [![HACI on HASS latest](https://github.com/miklosbagi/haci/actions/workflows/hass-latest-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-latest-haci-test.yml) [![HACI on HASS stable](https://github.com/miklosbagi/haci/actions/workflows/hass-stable-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-stable-haci-test.yml) [![HACI on HASS rc](https://github.com/miklosbagi/haci/actions/workflows/hass-rc-haci-test.yaml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-rc-haci-test.yaml) [![HACI on HASS dev](https://github.com/miklosbagi/haci/actions/workflows/hass-dev-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-dev-haci-test.yml) [![HACI on HASS 2025.1](https://github.com/miklosbagi/haci/actions/workflows/hass-202501-haci-test.yml/badge.svg)](https://github.com/miklosbagi/haci/actions/workflows/hass-202501-haci-test.yml) [![HACI on HASS 2024.1 Reference](https://github.com/miklosbagi/haci/actions/workflows/hass-202401-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-reference-haci-test.yml) [![HACI on HASS 2023.1](https://github.com/miklosbagi/haci/actions/workflows/hass-202301-haci-test.yml/badge.svg?kill_cache=1)](https://github.com/miklosbagi/haci/actions/workflows/hass-202301-haci-test.yml)
 
-This is code for injecting self-signed certificates into Home Assistant.  
-Setting up as a command_line sensor (example below) can achieve SSL trust monitoring and automated cert-inject in case it breaks. 
-It patches the certs inside the `homeassistant` container on hassos, and python's certifi package too.
+This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the homeassistant container on HassOS and Python's certifi package.
+By setting up a command-line sensor (example below), you can automate SSL trust monitoring and re-inject certificates if they break.
 
-## Is this for me?
+## Is this for you?
+Use HACI if **all** the following apply:
 Yes, in case your response to all of the following statements are true:
-- running Home Assistant OS or Home Assistant (Core) container
-- already have self-signed certificates
-- you rely on services protected by those certificates
-- not a fan of skipping certificate validation (e.g.: ```curl -k``` or setting verify_ssl to false)
-- running into the "I can't make Home Assistant trust my certificates" problem
+- You're running Home Assistant OS or Home Assistant (Core) in a container.
+- You already have self-signed certificates.
+- You rely on services protected by these certificates.
+- You prefer not to skip certificate validation (e.g., `curl -k` or setting `verify_ssl: false`).
+- You're struggling to make Home Assistant trust your certificates. 
 
-You **definitely do not need this** to run Home Assistant behind SSL (e.g. https://hass.lan), letsencrypt, etc. This is to make HA trust your CA.
+You **DO NOT need HACI** to simply enable SSL (e.g., https://hass.lan with Let's Encrypt). HACI is for making HA trust your Certificate Authority (CA).
 
 ## Quickstart
 ### Prerequisites
