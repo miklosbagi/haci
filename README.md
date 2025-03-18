@@ -64,7 +64,7 @@ The script runs silently by default for background execution. For debugging, use
 
 ### Creating a certificate trust monitor sensor (optional)
 Example for configuration.yaml:
-```
+```yaml
 ### Home Assistant Cert Injector
 sensor:
   - platform: command_line
@@ -75,52 +75,7 @@ sensor:
     payload_off: 1
 ```
 
-## FAQ
-```OpenSSL Binary is not found!```
-Please be aware that as of HASSOS 2022.6.2, the openssl binary has been removed. This issue has been addressed in [#4](/../../issues/4), so cloning the latest HACI should fix this.
-
-```Is this limited to internal services?```  
-No. Just set the test site to an external https site - the point is to trust the ssl that site uses.
-
-```Is it safe to add this script as a sensor?```  
-Relatively yes. There are a few measures to avoid certificates linked or added more than once.
-
-```Does this solution resist Home Assistant Core updates?```  
-No, and yes.  
-No, as an update is expected to overwrite the certificates directory and sort of reset any changes made to them.  
-Yes, as if you set this script as a sensor, the changes are made the first time it's detected that SSL trust have started failing.
-Also, all you need to do is re-run the script should trust be lost, and it's highly likely that it fixes the issue(s).
-
-```Is there a backup created?```  
-Yes, for both the /etc/ssl/certs/ca-certificates.crt and /usr/local/lib/python\<runtime_version\>/site-packages/certifi/cacert.pem files are backed up (with a .backup suffix) to HACI's runtime directory. Worst case scenario is that you have to SSH back in and overwrite the original files with the backups.
-
-```Any binary dependencies to worry about?```  
-No. There is reliance on basic linux tools and openssl - all binary dependencies are validated on script start, so you don't end up with a half-baked solution.
-
-```Why is this not an integration?```  
-- According to the Home Assistant folks, there isn't a lot of people with this exact need, so did not bother
-- Only applicable to Home Assistant OS and Core container, so there are some obvious limitations in usage.
-
-```Is this maintained?```  
-I can commit to maintaining HACI for as long as I keep running Home Assistant OS myself.  
-Should that change, this line will change.
-
-```The XYZ integration says SSL is still not trusted```  
-You may want to enable the certifi integration in config and re-run HACI - some integrations rely on Python's Certifi trust chain, and thus adding your certs to linux only will not help.
-Also, please note that some anomalies are expected right after upgrading the Core. Thing is, some of your integrations may run before ```haci``` does its magic, and may stuck in a false state until restarted.
-
-```I have ran this in *** console/terminal and it does not seem to work```  
-Keep in mind that addons like SSH/Terminal and VSCode run in their own dockers. While certain elements (such as /config) are shared, the /etc/ssl/certs we need is a part of the homeassistant container, as that is the one executing the command_line sensors, python scripts, etc.  
-The sensor example above fixed this, however, for running this manually, you have to get into a position to launch ```docker exec -it homeassistant /bin/bash``` successfully. 
-
-```Can I run this at Home Assistant Startup?```  
-Yes, in fact that is what I'm doing. Every time 
-
-```Can I make Home Assistant trust my MITM proxy certificates via HACI?```
-Yes, Charles Proxy, MITM Proxy or Cisco Umbrella should all work now.
-
-```I'm tryin to use HACI with certifi enabled, and getting this error: ModuleNotFoundError: No module named 'distutils.util'```
-Likely you are not running haci inside the ```homeassistant``` container - please note that vscode, terminal / ssh addons live in their own containers, there can be a few differences in installed py modules.
+[Please take a look at our FAQ in Wiki](https://github.com/miklosbagi/haci/wiki/FAQ)
 
 ## Thanks
 - arfoll, mateuszdrab for their report, and support in resolving [#4](/../../issues/4)
