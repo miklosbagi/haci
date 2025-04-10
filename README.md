@@ -5,12 +5,10 @@
 This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the `homeassistant` container on HassOS and Python's `certifi` package.  
 By setting up a command-line sensor (example below), you can automate SSL trust monitoring and re-inject certificates if they break.  
 
-For Home Assistant **Container**, there's a much easier trick: please take a look at [ca-init-container](https://github.com/miklosbagi/ca-init-container) to see an example on how certs can be dynamically volume mapped 😅
-
 ## Is this for you?
 Use HACI if **all** the following apply:
 Yes, in case your response to all of the following statements are true:
-- You're running Home Assistant OS or Home Assistant (Core) in a container.
+- You're running Home Assistant OS
 - You already have self-signed certificates.
 - You rely on services protected by these certificates.
 - You prefer not to skip certificate validation (e.g., `curl -k` or setting `verify_ssl: false`).
@@ -18,6 +16,8 @@ Yes, in case your response to all of the following statements are true:
 
 You **DO NOT need HACI** to simply enable SSL (e.g., https://hass.lan with Let's Encrypt).  
 HACI is for making HA trust your Certificate Authority (CA).
+
+Please note that for the docker version of home-assistant (Home Assistant **Container**), there's a much easier trick: please take a look at [ca-init-container](https://github.com/miklosbagi/ca-init-container) to see an example on how certs can be dynamically volume mapped 😅
 
 ## Quickstart
 ### Prerequisites
