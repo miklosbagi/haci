@@ -46,13 +46,14 @@ function CHECK_CERTS {
 
 function CHECK_SSL_INT_PY { 
   python3 -c "
-import ssl, sys, socket
+import ssl, sys, socket, certifi
 
 host_port = sys.argv[1]
 host, port = host_port.split(':')
 
 try:
-    context = ssl.create_default_context()
+    # Explicitly use certifi's certificate bundle
+    context = ssl.create_default_context(cafile=certifi.where())
     with socket.create_connection((host, int(port)), timeout=1) as sock:
         with context.wrap_socket(sock, server_hostname=host):
             pass  # SSL connection successful
