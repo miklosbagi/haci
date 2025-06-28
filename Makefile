@@ -17,11 +17,18 @@ all:
 
 .PHONY: run-tests
 run-tests: clean
+run-tests: lint
 run-tests: start-test-env
 run-tests: add-haci-config
 run-tests: test-haci
 run-tests: stop-test-env
 run-tests: clean
+
+.PHONY: lint
+lint:
+	@a=$(shellcheck --help) || { apt install -y shellcheck || exit 1; }
+	@echo -ne " * Linting HACI... "
+	@shellcheck -S  warning haci.sh && echo ✅ || echo ❌
 
 .PHONY: start-test-env
 start-test-env:
