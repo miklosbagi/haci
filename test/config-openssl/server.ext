@@ -5,4 +5,4 @@ extendedKeyUsage=serverAuth
 subjectAltName=@alt_names
 
 [alt_names]
-DNS.1=haci-test-nginx
+DNS.1=haci.homeassistant.ci
