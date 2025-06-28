@@ -5,9 +5,9 @@
 This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the `homeassistant` container on HassOS and Python's `certifi` package.  
 By setting up a command-line sensor (example below), you can automate SSL trust monitoring and re-inject certificates if they break.  
 
-## ⚠️ Important Notice for Home Assistant 2025.07 / Python 3.13
+## ⚠️ Important Notice for Home Assistant 2025.7 / Python 3.13
 
-Starting with the **Home Assistant 2025.07** release, Home Assistant will ship with **Python 3.13**, which enforces stricter SSL validation rules in line with **[RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280)**. In particular:
+Starting with the **Home Assistant 2025.7** release, Home Assistant will ship with **Python 3.13**, which enforces stricter SSL validation rules in line with **[RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280)**. In particular:
 
 - **CA certificates (including intermediates)** **MUST** have the **Basic Constraints** extension marked as **critical** — otherwise, Python will refuse to trust them with the error message: `Certificate verify failed: Basic Constraints of CA cert not marked critical`
 - If you're using self-signed or internally-issued certificates that lack this **critical Basic Constraints** flag (common in older setups), HACI’s patch to `certifi` **may fail**, causing SSL services to break.
