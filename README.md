@@ -32,8 +32,13 @@ Please note that for the docker version of home-assistant (Home Assistant **Cont
    ```console
    git clone git@github.com:miklosbagi/haci.git
    ```
+   or alternatively you can download the zip archive:
+   ```console
+   wget https://github.com/miklosbagi/haci/archive/refs/heads/master.zip && unzip master.zip && mv haci-master haci
+   ```
 1. **Create a config file:**
    ```console
+   cd haci
    cp haci.conf.sample haci.conf
    ```
 1. **Add the following to `haci.conf`:**
