@@ -1,8 +1,8 @@
 SHELL=/bin/bash
 TEST_DIR:=test
 TEST_ENV:=stable
-TEST_SITE:=haci-test-nginx
-SUBJ:='/C=HU/ST=Budapest/O=HACItest/CN=haci-test-nginx'
+TEST_SITE:=haci.homeassistant.ci
+SUBJ:='/C=HU/ST=Budapest/O=HACItest/CN=haci.homeassistant.ci'
 COMPOSE_CMD=docker compose -f ${TEST_DIR}/docker-compose/docker-compose.yaml -f ${TEST_DIR}/docker-compose/docker-compose-env.yaml
 
 include legacy.mk
@@ -17,11 +17,18 @@ all:
 
 .PHONY: run-tests
 run-tests: clean
+run-tests: lint
 run-tests: start-test-env
 run-tests: add-haci-config
 run-tests: test-haci
 run-tests: stop-test-env
 run-tests: clean
+
+.PHONY: lint
+lint:
+	@a=$(shellcheck --help) || { apt install -y shellcheck || exit 1; }
+	@echo -ne " * Linting HACI... "
+	@shellcheck -S  warning haci.sh && echo ✅ || echo ❌
 
 .PHONY: start-test-env
 start-test-env:
@@ -43,7 +50,7 @@ test-haci:
 	${COMPOSE_CMD} logs
 	@echo -ne " * Waiting for HASS to come alive... "
 	@until curl --retry 5 --retry-all-errors --connect-timeout 1 -s http://localhost:8823/ -o /dev/null; do sleep 1; done && echo ✅ || echo ❌
-	@echo -ne " * Testing HACI"
+	@echo " * Testing HACI"
 	@docker exec homeassistant-${TEST_ENV} /haci/haci.sh debug && echo "✅ PASSED" || { echo "❌ FAILED."; exit 1; }
 
 .PHONY: stop-test-env

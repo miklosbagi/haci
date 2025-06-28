@@ -5,6 +5,8 @@
 This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the `homeassistant` container on HassOS and Python's `certifi` package.  
 By setting up a command-line sensor (example below), you can automate SSL trust monitoring and re-inject certificates if they break.  
 
+
+
 ## Is this for you?
 Use HACI if **all** the following apply:
 Yes, in case your response to all of the following statements are true:
@@ -32,8 +34,13 @@ Please note that for the docker version of home-assistant (Home Assistant **Cont
    ```console
    git clone git@github.com:miklosbagi/haci.git
    ```
+   or alternatively you can download the zip archive:
+   ```console
+   wget https://github.com/miklosbagi/haci/archive/refs/heads/master.zip && unzip master.zip && mv haci-master haci
+   ```
 1. **Create a config file:**
    ```console
+   cd haci
    cp haci.conf.sample haci.conf
    ```
 1. **Add the following to `haci.conf`:**
@@ -87,3 +94,32 @@ Keeping this short:
 - Provided as-is. No warranty: if you find a way to blow up your house with this, don't point fingers.
 - For individual: use it, run it, change it, share the changes, free as freedom.
 - For business: do not.
+
+## ⚠️ Important Notice for Python 3.13+ Users
+
+**Certificate Generation Requirement Change**
+
+Starting with Python 3.13, SSL certificate validation has become stricter. If you're generating custom CA certificates for use with this tool, you **MUST** ensure that your CA certificates include the Basic Constraints extension marked as **critical**.
+
+**Required certificate extension:**
+
+```
+basicConstraints = critical, CA:TRUE, pathlen:0
+```
+
+**Symptoms of incorrect certificates:**
+- Error: `[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Basic Constraints of CA cert not marked critical`
+- System tools (curl, openssl) work fine, but Python SSL validation fails
+
+**Solution:**
+Regenerate your CA certificates with the proper Basic Constraints extension. In your OpenSSL configuration file, ensure your CA certificate section includes:
+
+```ini
+[ca_cert]
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, keyCertSign, cRLSign
+```
+
+This change affects Python's `ssl` module and libraries that depend on it (like `requests` with `certifi`).
+
+**For intermediate CA certificates:**
