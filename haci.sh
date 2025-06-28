@@ -58,10 +58,15 @@ try:
         with context.wrap_socket(sock, server_hostname=host):
             pass  # SSL connection successful
     exit(0)
-except ssl.SSLError:
-    exit(1)  # Certificate validation failed
-except Exception:
-    exit(1)  # Connection or other error
+except ssl.SSLError as e:
+    print(f'SSL Certificate validation failed for {host}:{port}', file=sys.stderr)
+    print(f'SSL Error: {e}', file=sys.stderr)
+    print(f'Using certificate bundle: {certifi.where()}', file=sys.stderr)
+    exit(1)
+except Exception as e:
+    print(f'Connection failed to {host}:{port}', file=sys.stderr)  
+    print(f'Error: {e}', file=sys.stderr)
+    exit(1)
 " "$test_site" || return 1
 }
 
@@ -113,7 +118,7 @@ CHECK_SSL_INT_PY && _SAY "Python SSL handshake is passing, not injecting certs" 
   certifi_file=$(python3 -m certifi)
   # loop through certs and inject them into python3 certifi
   for cert in $certs; do
-    echo "# HACI $cert $(date +%Y-%m-%d' '%H:%M:%S)" >> $certifi_file || _ERR "Failed to add HACI tag to certifi file $certifi_file"
+    echo "# github.com/miklosbagi/haci $cert $(date +%Y-%m-%d' '%H:%M:%S)" >> $certifi_file || _ERR "Failed to add HACI tag to certifi file $certifi_file"
     a=$(cat "$cert" >> "$certifi_file") || _ERR "Failed to inject cert $cert into python3 certifi $certifi_file"
     _SAY "  Injected cert $cert into python3 certifi ($(python3 -m certifi))"
   done
