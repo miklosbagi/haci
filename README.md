@@ -5,7 +5,28 @@
 This script injects self-signed certificates into Home Assistant, ensuring SSL trust for services protected by those certificates. It patches both the Linux certificates inside the `homeassistant` container on HassOS and Python's `certifi` package.  
 By setting up a command-line sensor (example below), you can automate SSL trust monitoring and re-inject certificates if they break.  
 
+## ⚠️ Important Notice for Home Assistant 2025.07 / Python 3.13
 
+Starting with the **Home Assistant 2025.07** release, Home Assistant will ship with **Python 3.13**, which enforces stricter SSL validation rules in line with **[RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280)**. In particular:
+
+- **CA certificates (including intermediates)** **MUST** have the **Basic Constraints** extension marked as **critical** — otherwise, Python will refuse to trust them with the error message: `Certificate verify failed: Basic Constraints of CA cert not marked critical`
+- If you're using self-signed or internally-issued certificates that lack this **critical Basic Constraints** flag (common in older setups), HACI’s patch to `certifi` **may fail**, causing SSL services to break.
+
+### ✅ To avoid interruptions:
+1. **Inspect your CA chain** using: `openssl x509 -in your-cert.pem -text -noout` and confirm: `Basic Constraints: critical, CA:TRUE`. All intermediate certificates in the chain **must** meet this requirement.
+
+2. **Regenerate certificates** if needed, ensuring your CA config includes:
+   ```
+   basicConstraints=critical,CA:TRUE
+   keyUsage=critical,digitalSignature,cRLSign,keyCertSign
+   ```
+3. **Test with Python 3.13** locally before upgrading to Home Assistant 2025.07 (dev/rc/stable).
+If your CA chain isn't compliant, SSL connectivity (e.g. with integrations like Nextcloud, Jellyfin, CalDAV, etc.) **will break** after upgrading.  
+Please ensure your certificates are valid and compliant **before** updating Home Assistant.
+
+Further reading:  
+- [Discussion on Python 3.13 SSL changes](https://discuss.python.org/t/python-3-13-x-ssl-security-changes/91266)  
+- [Community thread on HA cert handling](https://community.home-assistant.io/t/let-home-assistant-trust-a-personal-certificate-authority/184917?page=3)
 
 ## Is this for you?
 Use HACI if **all** the following apply:
@@ -94,32 +115,3 @@ Keeping this short:
 - Provided as-is. No warranty: if you find a way to blow up your house with this, don't point fingers.
 - For individual: use it, run it, change it, share the changes, free as freedom.
 - For business: do not.
-
-## ⚠️ Important Notice for Python 3.13+ Users
-
-**Certificate Generation Requirement Change**
-
-Starting with Python 3.13, SSL certificate validation has become stricter. If you're generating custom CA certificates for use with this tool, you **MUST** ensure that your CA certificates include the Basic Constraints extension marked as **critical**.
-
-**Required certificate extension:**
-
-```
-basicConstraints = critical, CA:TRUE, pathlen:0
-```
-
-**Symptoms of incorrect certificates:**
-- Error: `[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Basic Constraints of CA cert not marked critical`
-- System tools (curl, openssl) work fine, but Python SSL validation fails
-
-**Solution:**
-Regenerate your CA certificates with the proper Basic Constraints extension. In your OpenSSL configuration file, ensure your CA certificate section includes:
-
-```ini
-[ca_cert]
-basicConstraints = critical, CA:TRUE
-keyUsage = critical, keyCertSign, cRLSign
-```
-
-This change affects Python's `ssl` module and libraries that depend on it (like `requests` with `certifi`).
-
-**For intermediate CA certificates:**
