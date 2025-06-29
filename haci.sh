@@ -2,13 +2,23 @@
 
 ### Please consult README.md before running this.
 
-###
-### config
-###
-
 function _SAY { [ -z $debug ] || echo -ne "  $1\n"; return 0; }
 function _ERR { echo -ne "!!! Error: $1\n"; exit 1; }
 function _WRN { echo -ne "??? $1\n"; return 0; }
+
+# check binary dependencies, and attempt to handle the lack of them
+function BIN_DEPS {
+  a=$(update-ca-certificates --help) || { apk add --no-cache ca-certificates || _ERR "Failed to install ca-certificates"; }
+  a=$(openssl --version) || { apk add --no-cache openssl || _ERR "Failed to install openssl"; }
+  a=$(curl --version) || { apk add --no-cache curl || _ERR "Failed to install curl"; }
+  a=$(python3 --version) || { _WRN "Python3 is somehow not installed, turning certifi injection off."; unset certifi; }
+}
+
+# check that certs directory exists
+function CHECK_CERTS {
+  [ -d "${0%/*}/certs" ] || _ERR "${0%/*}/certs directory is missing. Please create that and put your .pem, .crt or .cer certificates in it"
+  _SAY "The ${0%/*}/certs directory exists"
+}
 
 # validate internal ssl test site - note that test_site could be non-http
 function CHECK_SSL_INT {
@@ -17,33 +27,7 @@ function CHECK_SSL_INT {
     return 1
 }
 
-function CHECK_SSL_INT_INSECURE { 
-  a=$(curl -m 2 -sk "$test_site") || return 1
-}
-
-function CLEANUP_TEST_SITE_STRING {
-  # remove any protocol prefix (http://, postgres://, smtp://, etc.)
-  test_site=${test_site#*://}
-  # remove any path/query/fragment suffix  
-  test_site=${test_site%%/*}
-  # remove any userinfo prefix (user:pass@)
-  test_site=${test_site##*@}
-  # add default port if none specified
-  [[ $test_site == *:* ]] || test_site=$test_site:443
-}
-
-function BIN_DEPS {
-  a=$(update-ca-certificates --help) || { apk add --no-cache ca-certificates || _ERR "Failed to install ca-certificates"; }
-  a=$(openssl --version) || { apk add --no-cache openssl || _ERR "Failed to install openssl"; }
-  a=$(curl --version) || { apk add --no-cache curl || _ERR "Failed to install curl"; }
-  a=$(python3 --version) || { _WRN "Python3 is somehow not installed, turning certifi injection off."; unset certifi; }
-}
-
-function CHECK_CERTS {
-  [ -d "${0%/*}/certs" ] || _ERR "${0%/*}/certs directory is missing. Please create that and put your .pem, .crt or .cer certificates in it"
-  _SAY "The ${0%/*}/certs directory exists"
-}
-
+# validate ssl trust in py (via certifi)
 function CHECK_SSL_INT_PY { 
   python3 -c "
 import ssl, sys, socket, certifi
@@ -70,7 +54,19 @@ except Exception as e:
 " "$test_site" || return 1
 }
 
-# switch on debug if it's been defined.
+# test site can be http with port, or other protocols too, cleanup user input
+function CLEANUP_TEST_SITE_STRING {
+  # remove any protocol prefix (http://, postgres://, smtp://, etc.)
+  test_site=${test_site#*://}
+  # remove any path/query/fragment suffix  
+  test_site=${test_site%%/*}
+  # remove any userinfo prefix (user:pass@)
+  test_site=${test_site##*@}
+  # add default port if none specified
+  [[ $test_site == *:* ]] || test_site=$test_site:443
+}
+
+# switch on debug if it's been defined - _SAY messages will be visible this way.
 a=$(echo "$1" |grep -i -q "debug") && debug="1"
 _SAY "\b\bRunning with debug"
 
@@ -78,21 +74,18 @@ _SAY "\b\bRunning with debug"
 [ -f "${0%/*}/haci.conf" ] && { source "${0%/*}/haci.conf" || _ERR "Failed loading config: haci.conf."; } || _ERR "Config file haci.conf does not exist or no access."
 _SAY "Config loaded"
 
-# check dependencies
+# preps
 BIN_DEPS || _ERR "Failed to check dependencies"
-_SAY "Dependencies checked"
-
+_SAY "Binary dependencies checked"
 CHECK_CERTS || _ERR "Failed to check certs directory ${0%/*}/certs, or it's missing .crt/.cer/.pem files"
-_SAY "Certs checked"
-
-# backward compatibility for https://this-site vs this-site:port
+_SAY "Certs directory checked"
 CLEANUP_TEST_SITE_STRING || _ERR "Failed to cleanup test_site string"
-_SAY "Test site string final: $test_site"
+_SAY "Final test site string: $test_site"
 
 # grab all certs in the certs directory
 certs=$(find "${0%/*}/certs"/ -type f \( -name "*.crt" -o -name "*.pem" -o -name "*.cer" \)) || _ERR "Find throws error for ${0%/*}/certs"
 
-# alpine linux
+# system-wide (alpine linux support only, for homeassistant container)
 CHECK_SSL_INT && _SAY "Linux SSL handshake is passing, not injecting certs" || {
   _SAY "Linux SSL handshake is failing, injecting certs"
   # copy certs to /usr/local/share/ca-certificates and update ca-certificates
@@ -113,9 +106,8 @@ CHECK_SSL_INT && _SAY "Linux SSL handshake is passing, not injecting certs" || {
 # python certifi
 CHECK_SSL_INT_PY && _SAY "Python SSL handshake is passing, not injecting certs" || {
   _SAY "Python SSL handshake is failing, injecting certs"
-  # python will need exact certs, grabbing a list
-
   certifi_file=$(python3 -m certifi)
+  
   # loop through certs and inject them into python3 certifi
   for cert in $certs; do
     echo "# github.com/miklosbagi/haci $cert $(date +%Y-%m-%d' '%H:%M:%S)" >> $certifi_file || _ERR "Failed to add HACI tag to certifi file $certifi_file"
