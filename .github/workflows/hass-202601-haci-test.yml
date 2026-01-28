@@ -9,7 +9,7 @@ on:
     - cron:  '0 0 * * *'
 
 jobs:
-  hass-reference-test:
+  hass-2025-1-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
